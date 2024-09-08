@@ -1,8 +1,7 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Token, Mint, Burn, TokenAccount};
-use anchor_spl::associated_token::AssociatedToken;
-use mpl_token_metadata::instructions::{CreateMetadataAccountV3, UpdateMetadataAccountV2}
-use mpl_token_metadata::types::Creator;
+use anchor_lang::solana_program::program::invoke;
+use anchor_spl::token::Token;
+
 
 declare_id!("Frjrqak9ospiUqQiBH5E7XduTngUJx1a3E9g28VSaB2C");
 
@@ -10,70 +9,21 @@ declare_id!("Frjrqak9ospiUqQiBH5E7XduTngUJx1a3E9g28VSaB2C");
 pub mod nft_program {
     use super::*;
 
-    pub fn Mint_Nft(ctx: Context<MintNft>, _input: Vec<u8>, uri: String, name: String, symbol: String) -> Result<()> {
-        let index = &mut ctx.accounts.index_account;
-
-        if index.counter > 5000 {
-            return Err(ErrorCode::MintLimitExceeded.into());
-        }
-
-
-
-        Ok(())
-    }
+    
 }
 
 #[derive(Accounts)]
 pub struct MintNft<'info> {
-    #[account(init_if_needed, payer = payer_account, space = 8 + std::mem::size_of::<AmoebitIndex>())]
-    pub index_account: Account<'info, AmoebitIndex>,
     #[account(mut)]
-    pub payer_account: Signer<'info>,
-    /// CHECK: Wallet check
-    #[account()]
-    pub wallet: AccountInfo<'info>,
-    /// CHECK: Mint account validation
+    pub mint_authority: Signer<'info>, // This is the account that has the authority to mint more tokens(NFT in this case)
     #[account(mut)]
-    pub mint_account: Account<'info, Mint>,
+    pub mint: UncheckedAccount<'info>, // Account automatically does it's own checks on the account(Like checking ownership, existence of the acc), but we would like to have more control, so we're gonna use UncheckedAccount to add custom checks on the account
+    pub token_program: Program<'info, Token>, // Donno for sure, but it is a program that handles mechanism regarding tokens
     #[account(mut)]
-    pub token_account: Account<'info, TokenAccount>,
-    /// CHECK: Meta account (PDA)
+    pub metadata: UncheckedAccount<'info>, // this is the account that will contain all the info like the name, symbol and the url to the NFT
     #[account(mut)]
-    pub meta_account: AccountInfo<'info>,
-    /// CHECK: Metaplex token metadata program
-    #[account(address = TOKEN_META_PROGRAM.parse::<Pubkey>().unwrap())]
-    pub meta_program_account: AccountInfo<'info>,
-    /// CHECK: Auth account
+    pub token_account: UncheckedAccount<'info>, // this is the account to which the newly minted NFT will be sent to
+    pub token_metadata_program: UncheckedAccount<'info>, // this points to the program that handles the metadata of the NFT. This will point to metaplex since it manages the metadata of the NFT
     #[account(mut)]
-    pub auth_account: AccountInfo<'info>,
-    /// CHECK: Sysvar rent account
-    #[account(address = sysvar::rent::ID)]
-    pub rent_account: AccountInfo<'info>,
-    #[account(address = TOKEN_PROGRAM.parse::<Pubkey>().unwrap())]
-    pub token_program_account: Program<'info, Token>,
-    /// CHECK: WL Mint Account
-    #[account()]
-    pub wl_mint: AccountInfo<'info>,
-    #[account(mut)]
-    pub discount_mint_account: AccountInfo<'info>,
-    pub system_program: Program<'info, System>,
-}
-#[account]
-pub struct AmoebitIndex {
-    pub counter: u16,
-}
-
-// Constants (adapt these for your use case)
-const PREFIX: &str = "amoebit_minter";
-const TOKEN_PROGRAM: &str = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
-const TOKEN_META_PROGRAM: &str = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s";
-const OUR_WALLET: &str = "AmbtTL5LS42RFL1ZL5QQan8ZSyn27pvVoCbFYF2eTwyH";
-const MINT_KEY: &str = "DwuhyNAQYjJHKZJEkVLy5Phoz83Tty6whVcZ79eQ7rXs";
-const RELEASE_TIME: i64 = 1636758000; // Example timestamp
-
-
-#[error_code]
-pub enum ErrorCode {
-    #[msg("Maximum mint limit exceeded")]
-    MintLimitExceeded
+    pub payer: AccountInfo<'info>,
 }
