@@ -1,5 +1,5 @@
-./Token-Creation-TS/node_modules
-./Token-Creation-Anchor/node_modules
-./scripts/ts/node_modules
-./Token-Creation-Anchor/nft-program/node_modules
-./Token-Creation-Anchor/nft-program/target
+Token-Creation-TS/node_modules
+Token-Creation-Anchor/node_modules
+scripts/ts/node_modules/
+Token-Creation-Anchor/nft-program/node_modules
+Token-Creation-Anchor/nft-program/target
