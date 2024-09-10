@@ -3,7 +3,6 @@ import { createMint, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 const connection = new Connection(clusterApiUrl("devnet"))
 
-
 // This function will airdrop the arg amount to toAddress PublicKey
 const airdropSol = async (toAddress: PublicKey, amount: number) => {
     const airdropSig = await connection.requestAirdrop(toAddress, amount)
