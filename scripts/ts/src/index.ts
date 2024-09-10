@@ -1,5 +1,5 @@
 import { clusterApiUrl, Connection, PublicKey, LAMPORTS_PER_SOL, Keypair } from "@solana/web3.js";
-import { createMint, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { createMint, TOKEN_PROGRAM_ID, getOrCreateAssociatedTokenAccount, mintTo, AccountLayout } from "@solana/spl-token";
 
 const connection = new Connection(clusterApiUrl("devnet"))
 
@@ -23,7 +23,27 @@ const createYourToken = async (payer: Keypair, mintAuthority: PublicKey, decimal
     console.log('created token at: ', mint.toBase58())
     return mint
 } 
+const payer = Keypair.generate();
+const mintAuthority = Keypair.generate()
 
-const payer = Keypair.fromSecretKey(Uint8Array.from([102,144,169,42,220,87,99,85,100,128,197,17,41,234,250,84,87,98,161,74,15,249,83,6,120,159,135,22,46,164,204,141,234,217,146,214,61,187,254,97,124,111,61,29,54,110,245,186,11,253,11,127,213,20,73,8,25,201,22,107,4,75,26,120]));
+const createAssociatedTokenAccount = async (mint: PublicKey, to: String, amount: number) => {
+    const ata = await getOrCreateAssociatedTokenAccount(connection, payer, mint, new PublicKey(to), )
 
-createYourToken(payer, payer.publicKey, 9)
+    await mintTo(connection, payer, mint, ata.address,  mintAuthority, amount)
+} 
+
+// The following is a function that takes in a account address and returns all the token owned by that address
+const getTokensFromAddress = async (address:PublicKey) => {
+    const tokenAccounts = await connection.getTokenAccountsByOwner(address, {
+        programId: TOKEN_PROGRAM_ID
+    })
+
+    console.log("Token                                         Balance");
+    console.log("------------------------------------------------------------");
+    tokenAccounts.value.forEach(tokenAccount => {
+        const accData = AccountLayout.decode(tokenAccount.account.data)
+        console.log(`${accData.mint}----------------------------------------${accData.amount}`)
+
+    })
+}
+
