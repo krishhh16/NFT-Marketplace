@@ -8,7 +8,7 @@ const ImageCard = ({ url, title, author }: {url: string, title: string, author: 
         src={url}
         alt={title}
         layout="fill"
-        objectFit="contain"
+        objectFit="cover"
         className="transition-transform duration-300 group-hover:scale-110"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
