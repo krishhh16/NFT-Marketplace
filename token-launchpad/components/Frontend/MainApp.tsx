@@ -46,15 +46,10 @@ function MainApp() {
                 additionalMetadata: []
             }
 
-            console.log("Metadata: ",   metadata.name)
-            console.log("Form: ", form)
-            console.log(mintKeypair.publicKey.toString())
-
             const mintLen = getMintLen([ExtensionType.MetadataPointer])
             const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length;
 
             const lamports = await connection.getMinimumBalanceForRentExemption(mintLen + metadataLen)
-            console.log("I only run till here")
             const transaction = new Transaction().add(
                 SystemProgram.createAccount({
                     fromPubkey: myKey,
@@ -83,7 +78,6 @@ function MainApp() {
             
             
             await wallet.sendTransaction(transaction, connection) 
-            console.log("but not till here")
             const associateTokenAccount = getAssociatedTokenAddressSync(
                 mintKeypair.publicKey,myKey, false, TOKEN_2022_PROGRAM_ID
             )
@@ -107,6 +101,8 @@ function MainApp() {
                 mintAcc: mintKeypair.publicKey.toString(),
                 associateTokenData: associateTokenAccount.toString()
             })
+
+            toast(`Mint account created at ${mintKeypair.publicKey.toString().slice(0,4)}...${mintKeypair.publicKey.toString().slice(38, -1)}`)
 
             }catch (err: any) {
                 toast(`Error happened: ${err.message}`)
