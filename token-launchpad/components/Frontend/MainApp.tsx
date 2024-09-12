@@ -24,10 +24,10 @@ function MainApp() {
     })
     const [minted, setMinted] = useState(false)
     const [form, setFormData] = useState<z.infer<typeof formData>>({
-        uri: "https://github.com",
-        name: "Zeref",
-        symbol: "ZRF",
-        decimal: 9
+        uri: "",
+        name: "",
+        symbol: "",
+        decimal: 0
     })
     const connection = new Connection(clusterApiUrl("devnet"))
     const wallet = useWallet();
